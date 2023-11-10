@@ -1,0 +1,9 @@
+cmake_minimum_required(VERSION 3.26)
+project(cplus_threads)
+
+set(CMAKE_CXX_STANDARD 14)
+
+include_directories(.)
+
+add_executable(cplus_threads
+        thread_v3_main.cpp)

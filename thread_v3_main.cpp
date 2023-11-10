@@ -126,15 +126,11 @@ void custom_sleep(int sleep_time) {
 
 int main() {
     std::vector<std::string> inputs = {
-            "data_call_setup,vpid1,non-blocking",
-            "make_voice_call,vpid2,non-blocking",
-            "custom_sleep,vpid0,blocking",
-            "ping,vpid1,non-blocking"
+            "data_call_setup,vpid1,blocking,1",
+            "make_voice_call,vpid2,non-blocking,5",
+            "ping,vpid1,non-blocking,5",
+            "custom_sleep,vpid0,blocking,3"
     };
-
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dis(1, 5); // Sleep times between 1 and 5 seconds
 
     std::map<std::string, Worker> workers;
     std::map<std::string, std::function<void(int)>> function_map = {
@@ -148,21 +144,21 @@ int main() {
     for (const auto& input : inputs) {
         std::istringstream iss(input);
         std::string function_name, vpid, mode;
+        int sleep_time;
+
         getline(iss, function_name, ',');
         getline(iss, vpid, ',');
         getline(iss, mode, ',');
+        iss >> sleep_time; // Directly read the sleep time as an integer
 
-        int sleep_time = dis(gen); // Random sleep time
-
-        // For non-blocking tasks, enqueue them to the worker threads
         if (mode == "non-blocking") {
+            // For non-blocking, enqueue the task to the worker
             workers[vpid].enqueue([=, &function_map] { function_map.at(function_name)(sleep_time); });
-        }
-        // For blocking tasks, execute them directly and wait for completion
-        if (mode == "blocking") {
+        } else {
+            // For blocking, execute the task in the main thread
             function_map.at(function_name)(sleep_time);
         }
-        sleep_for_seconds(1);
+//        sleep_for_seconds(1);
     }
 
     // Signal all workers that no more tasks will be enqueued
@@ -172,9 +168,11 @@ int main() {
 
     // Wait for all non-blocking workers to complete their tasks
     for (auto& worker_pair : workers) {
-        worker_pair.second.join();
+        if (worker_pair.first != "vpid0") { // Do not join the worker responsible for blocking tasks
+            worker_pair.second.join();
+        }
     }
 
-    log_with_timestamp("custom_sleep", "All tasks are completed.");
+    log_with_timestamp("main", "All tasks are completed.");
     return 0;
 }
