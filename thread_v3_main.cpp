@@ -176,3 +176,25 @@ int main() {
     log_with_timestamp("main", "All tasks are completed.");
     return 0;
 }
+
+/***
+The output for the inputs
+
+  std::vector<std::string> inputs = {
+            "data_call_setup,vpid1,blocking,1",
+            "make_voice_call,vpid2,non-blocking,5",
+            "ping,vpid1,non-blocking,5",
+            "custom_sleep,vpid0,blocking,3"
+    };
+
+2023-11-10 07:45:25 - data_call_setup - Task Starting : Sleeping for 1
+2023-11-10 07:45:26 - data_call_setup - Task completed
+2023-11-10 07:45:26 - custom_sleep - Task Starting : Sleeping for 3
+2023-11-10 07:45:26 - make_voice_call - Task Starting : Sleeping for 5
+2023-11-10 07:45:26 - ping - Task Starting : Sleeping for 5
+2023-11-10 07:45:29 - custom_sleep - Task completed
+2023-11-10 07:45:31 - make_voice_call - Task completed
+2023-11-10 07:45:31 - ping - Task completed
+2023-11-10 07:45:31 - main - All tasks are completed.
+
+ */
